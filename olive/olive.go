@@ -6,22 +6,31 @@ import (
 	"os"
 )
 
-func OliveGoFill(height, width int, color uint32) [][]uint32 {
-	pixels := make([][]uint32, height)
-
-	for y := range pixels {
-		pixels[y] = make([]uint32, width)
-		for x := range pixels[y] {
+func Fill(pixels [][]uint32, width, height int, color uint32) {
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
 			pixels[y][x] = color
 		}
 	}
-
-	return pixels
 }
 
-func OliveGoSaveToPpm(pixels [][]uint32, filePath string) error {
+func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int, color uint32) {
+	for dy := 0; dy < h; dy++ {
+		y := y0 + dy
+		if y >= 0 && y < pixelsHeight {
+			for dx := 0; dx < w; dx++ {
+				x := x0 + dx
+				if x >= 0 && x < pixelsWidth {
+					pixels[y][x] = color
+				}
+			}
+		}
+	}
+}
+
+func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	if filePath == "" {
-		return errors.New("File path must be provided")
+		return errors.New("file path must be provided")
 	}
 
 	file, err := os.Create(filePath)
@@ -30,23 +39,17 @@ func OliveGoSaveToPpm(pixels [][]uint32, filePath string) error {
 	}
 	defer file.Close()
 
-	height := len(pixels)
-	width := 0
-
-	if height > 0 {
-		width = len(pixels[0])
-	}
-
 	_, err = fmt.Fprintf(file, "P6\n%d %d\n255\n", width, height)
 	if err != nil {
 		return err
 	}
 
-	for _, row := range pixels {
-		for _, col := range row {
-			_, err := file.Write([]byte{byte(col >> 16), byte(col >> 8), byte(col)})
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			pixel := pixels[y][x]
+			_, err := file.Write([]byte{byte(pixel >> 16), byte(pixel >> 8), byte(pixel)})
 			if err != nil {
-				return err
+				panic("could not write to ppm")
 			}
 		}
 	}
