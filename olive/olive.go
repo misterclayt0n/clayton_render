@@ -56,3 +56,24 @@ func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 
 	return nil
 }
+
+func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int, color uint32) {
+	x1 := cx - r
+	x2 := cx + r
+	y1 := cx - r
+	y2 := cx + r
+
+	for y := y1; y <= y2; y++ {
+		if y >= 0 && pixelsHeight > y {
+			for x := x1; x <= x2; x++ {
+				if x >= 0 && pixelsWidth > x {
+					dx := x - cx
+					dy := y - cy
+					if dx*dx+dy*dy <= r*r {
+						pixels[y][x] = color
+					}
+				}
+			}
+		}
+	}
+}
