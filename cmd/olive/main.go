@@ -4,7 +4,6 @@ import olivego "github.com/misterclayt0n/olive.go/olive"
 
 var height int = 800
 var width int = 800
-
 var cols int = height / 100
 var rows int = width / 100
 var cellHeight int = height / cols
@@ -50,8 +49,18 @@ func circle() {
 	pixels := buildPixel()
 
 	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.FillCircle(pixels, width, height, width/2, height/2, 100, 0xFFFF0000)
+	olivego.FillCircle(pixels, width, height, width/2, height/2, 100, 0xFF00FF00)
 	err := olivego.SaveToPpm(pixels, width, height, "circle.ppm")
+	if err != nil {
+		panic("Failed to save to ppm")
+	}
+}
+
+func line() {
+	pixels := buildPixel()
+	olivego.Fill(pixels, width, height, backgroundColor)
+	olivego.Lines(pixels, width, height, 500, 600, 0xFFFF0000)
+	err := olivego.SaveToPpm(pixels, width, height, "line.ppm")
 	if err != nil {
 		panic("Failed to save to ppm")
 	}
@@ -60,4 +69,5 @@ func circle() {
 func main() {
 	circle()
 	chessboard()
+	line()
 }

@@ -77,3 +77,14 @@ func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int,
 		}
 	}
 }
+
+func Lines(pixels [][]uint32, width, height int, x1, x2, y1, y2 int, color uint32) {
+	// equação da reta: y = mx + n
+	dx := x2 - x1
+	dy := y2 - y1
+	if dx != 0 {
+		m := dy / dx
+	} else {
+		// TODO: not implemented
+	}
+}
