@@ -59,7 +59,8 @@ func circle() {
 func line() {
 	pixels := buildPixel()
 	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.Lines(pixels, width, height, 500, 600, 0xFFFF0000)
+	olivego.Line(pixels, width, height, 0, 0, width, height, 0xFFFF0000)
+	olivego.Line(pixels, width, height, width, 0, 0, height, 0xFFFF0000)
 	err := olivego.SaveToPpm(pixels, width, height, "line.ppm")
 	if err != nil {
 		panic("Failed to save to ppm")

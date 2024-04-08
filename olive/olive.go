@@ -6,6 +6,15 @@ import (
 	"os"
 )
 
+func abs(n int) int {
+	if n < 0 {
+		return -n
+	}
+
+	return n
+}
+
+// Fill fills the entire given canvas
 func Fill(pixels [][]uint32, width, height int, color uint32) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
@@ -14,6 +23,7 @@ func Fill(pixels [][]uint32, width, height int, color uint32) {
 	}
 }
 
+// FillRect renders a rectangle
 func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int, color uint32) {
 	for dy := 0; dy < h; dy++ {
 		y := y0 + dy
@@ -28,6 +38,7 @@ func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int
 	}
 }
 
+// SaveToPpm saves the pixels into the ppm format, generating a ppm file
 func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	if filePath == "" {
 		return errors.New("file path must be provided")
@@ -57,6 +68,7 @@ func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	return nil
 }
 
+// FillCircle renders a circle with given coordinates and radius
 func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int, color uint32) {
 	x1 := cx - r
 	x2 := cx + r
@@ -78,13 +90,49 @@ func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int,
 	}
 }
 
-func Lines(pixels [][]uint32, width, height int, x1, x2, y1, y2 int, color uint32) {
-	// equação da reta: y = mx + n
-	dx := x2 - x1
-	dy := y2 - y1
+// Line draws a straight line between 2 points: (x0, y0), (x1, y1)
+func Line(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, x1, y1 int, color uint32) {
+	dx := x1 - x0
+	dy := y1 - y0
+	var m float64
+
 	if dx != 0 {
-		m := dy / dx
-	} else {
-		// TODO: not implemented
+		m = float64(dy) / float64(dx)
+	}
+
+	n := y0 - int(m*float64(x0))
+
+	steep := abs(dx) < abs(dy)
+
+	if steep {
+		x0, y0 = y0, x0
+		x1, y1 = y1, x1
+	}
+
+	if x0 > x1 {
+		x0, x1 = x1, x0
+		y0, y1 = y1, y0
+	}
+
+	if dx != 0 {
+		m = float64(y1-y0) / float64(x1-x0)
+	}
+	n = y0 - int(m*float64(x0))
+
+	for x := x0; x < x1; x++ {
+		var y int
+		if steep {
+			y = int(m*float64(x) + float64(n))
+
+			if y >= 0 && x < pixelsWidth && x >= 0 && y < pixelsHeight {
+				pixels[y][x] = color
+			}
+		} else {
+			y = int(m*float64(x) + float64(n))
+
+			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
+				pixels[y][x] = color
+			}
+		}
 	}
 }
