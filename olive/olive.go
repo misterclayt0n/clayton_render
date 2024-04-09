@@ -139,7 +139,6 @@ func Line(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, x1, y1 int, 
 
 // FillTriangle renders a triangle based on given 3 coordinates
 func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, x2, y2 int, color uint32) {
-	// Primeiro, ordenamos os pontos por y-coordenada, do menor para o maior (do topo para baixo).
 	if y1 < y0 {
 		x0, x1 = x1, x0
 		y0, y1 = y1, y0
@@ -153,7 +152,6 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 		y1, y2 = y2, y1
 	}
 
-	// Função auxiliar para interpolação linear.
 	interpolate := func(x0, y0, x1, y1, y int) int {
 		if y0 == y1 {
 			return x0
@@ -161,7 +159,6 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 		return x0 + (x1-x0)*(y-y0)/(y1-y0)
 	}
 
-	// Desenha a linha entre dois pontos.
 	drawLine := func(y, x1, x2 int) {
 		for x := x1; x <= x2; x++ {
 			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
@@ -170,7 +167,6 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 		}
 	}
 
-	// Preencher a parte inferior do triângulo.
 	for y := y0; y <= y1; y++ {
 		xa := interpolate(x0, y0, x1, y1, y)
 		xb := interpolate(x0, y0, x2, y2, y)
@@ -180,7 +176,6 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 		drawLine(y, xa, xb)
 	}
 
-	// Preencher a parte superior do triângulo.
 	for y := y1; y <= y2; y++ {
 		xa := interpolate(x1, y1, x2, y2, y)
 		xb := interpolate(x0, y0, x2, y2, y)
@@ -191,7 +186,6 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 	}
 }
 
-// TODO: FillTriangle
 // TODO: DrawCircle
 // TODO: {Draw&&Fill}Elipse
 // TODO: Alpha -> Opacity
