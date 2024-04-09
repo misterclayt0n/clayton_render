@@ -67,8 +67,22 @@ func line() {
 	}
 }
 
+func triangle() {
+	pixels := buildPixel()
+	x0, y0 := 200, 200 // Primeiro ponto
+	x1, y1 := 200, 400 // Segundo ponto
+	x2, y2 := 400, 300 // Terceiro ponto
+	olivego.Fill(pixels, width, height, backgroundColor)
+	olivego.FillTriangle(pixels, width, height, x0, y0, x1, y1, x2, y2, 0xFFFF0000)
+	err := olivego.SaveToPpm(pixels, width, height, "triangle.ppm")
+	if err != nil {
+		panic("Failed to save to ppm")
+	}
+}
+
 func main() {
 	circle()
 	chessboard()
 	line()
+	triangle()
 }
