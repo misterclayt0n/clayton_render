@@ -61,9 +61,13 @@ func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			pixel := pixels[y][x]
-			_, err := file.Write([]byte{byte(pixel >> 16), byte(pixel >> 8), byte(pixel)})
+			r := uint8(pixel >> 24) // red in RGBA
+			g := uint8(pixel >> 16) // green in RGBA
+			b := uint8(pixel >> 8)  // green in RGBA
+			// ignore alpha channel
+			_, err := file.Write([]byte{r, g, b})
 			if err != nil {
-				panic("could not write to ppm")
+				return err
 			}
 		}
 	}
@@ -71,7 +75,7 @@ func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	return nil
 }
 
-// SaveToPpm saves the pixels into the png format, generating a png file
+// SaveToPng saves the pixels into the png format, generating a png file
 func SaveToPng(pixels [][]uint32, width, height int, filePath string) error {
 	if filePath == "" {
 		return errors.New("file path must be provided")
@@ -82,10 +86,10 @@ func SaveToPng(pixels [][]uint32, width, height int, filePath string) error {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			pixel := pixels[y][x]
-			a := uint8(pixel >> 24)
-			r := uint8(pixel >> 16)
-			g := uint8(pixel >> 8)
-			b := uint8(pixel)
+			r := uint8(pixel >> 24)
+			g := uint8(pixel >> 16)
+			b := uint8(pixel >> 8)
+			a := uint8(pixel)
 			img.SetNRGBA(x, y, color.NRGBA{R: r, G: g, B: b, A: a})
 		}
 	}
