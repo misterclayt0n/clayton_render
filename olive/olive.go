@@ -3,6 +3,9 @@ package olivego
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"os"
 )
 
@@ -63,6 +66,39 @@ func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 				panic("could not write to ppm")
 			}
 		}
+	}
+
+	return nil
+}
+
+// SaveToPpm saves the pixels into the png format, generating a png file
+func SaveToPng(pixels [][]uint32, width, height int, filePath string) error {
+	if filePath == "" {
+		return errors.New("file path must be provided")
+	}
+
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			pixel := pixels[y][x]
+			a := uint8(pixel >> 24)
+			r := uint8(pixel >> 16)
+			g := uint8(pixel >> 8)
+			b := uint8(pixel)
+			img.SetNRGBA(x, y, color.NRGBA{R: r, G: g, B: b, A: a})
+		}
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = png.Encode(file, img)
+	if err != nil {
+		return err
 	}
 
 	return nil
