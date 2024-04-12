@@ -4,9 +4,15 @@
 
 # Examples
 ### Chessboard
-<img src="images/chessboard.ppm" width="100%">
+<img src="images/chessboard.png" width="100%">
 
 ### Triangle
-<img src="images/triangle.ppm" width="100%">
+<img src="images/triangle.png" width="100%">
+
+### Circle
+<img src="images/circle.png" width="100%">
+
+### Lines
+<img src="images/line.png" width="100%">
 
 Original olive.c: https://github.com/tsoding/olive.c
