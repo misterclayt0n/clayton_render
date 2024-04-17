@@ -80,11 +80,20 @@ func triangle() {
 	}
 }
 
+// yaya maravilhosa
 func alpha() {
 	pixels := buildPixel()
 	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.FillRect(pixels, width, height, 0, 0, width/3, height/3, 0xFF0000FF)
-	err := olivego.SaveToPng(pixels, width, height, "alpha.png")
+
+	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
+
+	for y := height / 4; y < height; y++ {
+		for x := width / 4; x < width; x++ {
+			olivego.ApplyBlend(pixels, x, y, 0x00FF00AA) // 0x00FF00AA é o verde com alpha
+		}
+	}
+
+	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
 	if err != nil {
 		panic("Failed to save to ppm")
 	}
