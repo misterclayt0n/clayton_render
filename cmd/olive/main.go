@@ -88,7 +88,10 @@ func alpha() {
 
 	for y := height / 4; y < height; y++ {
 		for x := width / 4; x < width; x++ {
-			olivego.ApplyBlend(pixels, x, y, 0x00FF00AA) // 0x00FF00AA é o verde com alpha
+			if x < width*3/4 && y < height*3/4 {
+				olivego.ApplyBlend(pixels, x, y, 0xFF000055)
+			}
+			olivego.ApplyBlend(pixels, x, y, 0x00FF0055) // 0x00FF00AA é o verde com alpha
 		}
 	}
 
