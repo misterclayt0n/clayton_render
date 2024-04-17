@@ -80,7 +80,6 @@ func triangle() {
 	}
 }
 
-// yaya maravilhosa
 func alpha() {
 	pixels := buildPixel()
 	olivego.Fill(pixels, width, height, backgroundColor)

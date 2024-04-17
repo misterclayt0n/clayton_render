@@ -226,6 +226,7 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 	}
 }
 
+// BlendColors blends two given colors
 func BlendColors(bgColor, fgColor uint32) uint32 {
 	bgR := uint8((bgColor >> 24) & 0xFF)
 	bgG := uint8((bgColor >> 16) & 0xFF)
@@ -245,6 +246,7 @@ func BlendColors(bgColor, fgColor uint32) uint32 {
 	return (uint32(r) << 24) | (uint32(g) << 16) | (uint32(b) << 8) | 0xFF
 }
 
+// ApplyBlend applies the blend into the pixels
 func ApplyBlend(pixels [][]uint32, x, y int, fgColor uint32) {
 	if x < 0 || x >= len(pixels[0]) || y < 0 || y >= len(pixels) {
 		return // out of bounds
@@ -257,4 +259,3 @@ func ApplyBlend(pixels [][]uint32, x, y int, fgColor uint32) {
 
 // TODO: DrawCircle
 // TODO: {Draw&&Fill}Elipse
-// TODO: Alpha -> Opacity
