@@ -21,7 +21,7 @@ func abs(n int) int {
 func Fill(pixels [][]uint32, width, height int, color uint32) {
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			pixels[y][x] = color
+			blendPixel(pixels, x, y, color)
 		}
 	}
 }
@@ -34,7 +34,7 @@ func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int
 			for dx := 0; dx < w; dx++ {
 				x := x0 + dx
 				if x >= 0 && x < pixelsWidth {
-					pixels[y][x] = color
+					blendPixel(pixels, x, y, color)
 				}
 			}
 		}
@@ -122,7 +122,7 @@ func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int,
 					dx := x - cx
 					dy := y - cy
 					if dx*dx+dy*dy <= r*r {
-						pixels[y][x] = color
+						blendPixel(pixels, x, y, color)
 					}
 				}
 			}
@@ -165,13 +165,13 @@ func Line(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, x1, y1 int, 
 			y = int(m*float64(x) + float64(n))
 
 			if y >= 0 && x < pixelsWidth && x >= 0 && y < pixelsHeight {
-				pixels[y][x] = color
+				blendPixel(pixels, x, y, color)
 			}
 		} else {
 			y = int(m*float64(x) + float64(n))
 
 			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
-				pixels[y][x] = color
+				blendPixel(pixels, x, y, color)
 			}
 		}
 	}
@@ -202,7 +202,7 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 	drawLine := func(y, x1, x2 int) {
 		for x := x1; x <= x2; x++ {
 			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
-				pixels[y][x] = color
+				blendPixel(pixels, x, y, color)
 			}
 		}
 	}
@@ -246,12 +246,11 @@ func BlendColors(bgColor, fgColor uint32) uint32 {
 	return (uint32(r) << 24) | (uint32(g) << 16) | (uint32(b) << 8) | 0xFF
 }
 
-// ApplyBlend applies the blend into the pixels
-func ApplyBlend(pixels [][]uint32, x, y int, fgColor uint32) {
+// blendPixel blends the foreground color with the background color directly on the canvas.
+func blendPixel(pixels [][]uint32, x, y int, fgColor uint32) {
 	if x < 0 || x >= len(pixels[0]) || y < 0 || y >= len(pixels) {
 		return // out of bounds
 	}
-
 	bgColor := pixels[y][x]
 	blendedColor := BlendColors(bgColor, fgColor)
 	pixels[y][x] = blendedColor

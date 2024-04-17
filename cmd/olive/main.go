@@ -85,15 +85,8 @@ func alpha() {
 	olivego.Fill(pixels, width, height, backgroundColor)
 
 	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
-
-	for y := height / 4; y < height; y++ {
-		for x := width / 4; x < width; x++ {
-			if x < width*3/4 && y < height*3/4 {
-				olivego.ApplyBlend(pixels, x, y, 0xFF000055)
-			}
-			olivego.ApplyBlend(pixels, x, y, 0x00FF0055) // 0x00FF00AA é o verde com alpha
-		}
-	}
+	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF00FF)
+	olivego.FillCircle(pixels, width, height, width/2, height/2, width/4, 0x0000FF55)
 
 	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
 	if err != nil {
