@@ -18,4 +18,7 @@
 ### Alpha blending into PPM format
 <img src="images/alpha.png" width="100%">
 
+### Drawing with lines
+<img src="images/drawing.png" width="100%">
+
 Original olive.c: https://github.com/tsoding/olive.c
