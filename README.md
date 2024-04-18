@@ -16,7 +16,7 @@
 <img src="images/line.png" width="100%">
 
 ### Alpha blending into PPM format
-<img src="images/alpha.png" width="100%">
+<img src="images/transparent.png" width="100%">
 
 ### Drawing with lines
 <img src="images/drawing.png" width="100%">
