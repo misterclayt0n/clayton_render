@@ -2,13 +2,15 @@ package main
 
 import olivego "github.com/misterclayt0n/olive.go/olive"
 
-var height int = 800
-var width int = 800
-var cols int = height / 100
-var rows int = width / 100
-var cellHeight int = height / cols
-var cellWidth int = width / rows
-var backgroundColor uint32 = 0x202020FF
+var (
+	height          int    = 800
+	width           int    = 800
+	cols            int    = height / 100
+	rows            int    = width / 100
+	cellHeight      int    = height / cols
+	cellWidth       int    = width / rows
+	backgroundColor uint32 = 0x202020FF
+)
 
 // rectHeight := 200
 // rectWidth := 200
@@ -85,10 +87,25 @@ func alpha() {
 	olivego.Fill(pixels, width, height, backgroundColor)
 
 	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
-	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF00FF)
-	olivego.FillCircle(pixels, width, height, width/2, height/2, width/4, 0x0000FF55)
+	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF0055)
 
 	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
+	if err != nil {
+		panic("Failed to save to ppm")
+	}
+}
+
+func drawCircle() {
+	pixels := buildPixel()
+	olivego.Fill(pixels, width, height, backgroundColor)
+	x0, y0 := 200, 200
+	x1, y1 := 200, 400
+	x2, y2 := 400, 300
+
+	olivego.DrawCircle(pixels, width, height, width/2, height/2, 100, 0xFF0000FF)
+	olivego.DrawRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
+	olivego.DrawTriangle(pixels, width, height, x0, y0, x1, y1, x2, y2, 0xFF0000FF)
+	err := olivego.SaveToPng(pixels, width, height, "drawing.png")
 	if err != nil {
 		panic("Failed to save to ppm")
 	}
@@ -100,4 +117,5 @@ func main() {
 	line()
 	triangle()
 	alpha()
+	drawCircle()
 }

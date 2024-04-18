@@ -41,6 +41,20 @@ func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int
 	}
 }
 
+// DrawRect draws the outline of a rectangle.
+func DrawRect(pixels [][]uint32, width, height, x0, y0, w, h int, color uint32) {
+	// Top and bottom
+	for x := x0; x < x0+w; x++ {
+		blendPixel(pixels, x, y0, color)
+		blendPixel(pixels, x, y0+h-1, color)
+	}
+	// Left and right
+	for y := y0; y < y0+h; y++ {
+		blendPixel(pixels, x0, y, color)
+		blendPixel(pixels, x0+w-1, y, color)
+	}
+}
+
 // SaveToPpm saves the pixels into the ppm format, generating a ppm file
 func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
 	if filePath == "" {
@@ -130,49 +144,72 @@ func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int,
 	}
 }
 
+// DrawCircle draws the outline of a circle.
+func DrawCircle(pixels [][]uint32, width, height, cx, cy, r int, color uint32) {
+	x, y := r, 0
+	p := 1 - r
+
+	setCirclePixels(pixels, cx, cy, x, y, color)
+
+	for x > y {
+		y++
+		if p <= 0 {
+			p += 2*y + 1
+		} else {
+			x--
+			p += 2*(y-x) + 1
+		}
+		setCirclePixels(pixels, cx, cy, x, y, color)
+	}
+}
+
+// setCirclePixels sets the pixels for the 8 octants of the circle.
+func setCirclePixels(pixels [][]uint32, cx, cy, x, y int, color uint32) {
+	blendPixel(pixels, cx+x, cy+y, color)
+	blendPixel(pixels, cx-x, cy+y, color)
+	blendPixel(pixels, cx+x, cy-y, color)
+	blendPixel(pixels, cx-x, cy-y, color)
+	blendPixel(pixels, cx+y, cy+x, color)
+	blendPixel(pixels, cx-y, cy+x, color)
+	blendPixel(pixels, cx+y, cy-x, color)
+	blendPixel(pixels, cx-y, cy-x, color)
+}
+
 // Line draws a straight line between 2 points: (x0, y0), (x1, y1)
 func Line(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, x1, y1 int, color uint32) {
-	dx := x1 - x0
-	dy := y1 - y0
-	var m float64
-
-	if dx != 0 {
-		m = float64(dy) / float64(dx)
+	dx := abs(x1 - x0)
+	dy := -abs(y1 - y0)
+	sx := -1
+	sy := -1
+	if x0 < x1 {
+		sx = 1
 	}
-
-	n := y0 - int(m*float64(x0))
-
-	steep := abs(dx) < abs(dy)
-
-	if steep {
-		x0, y0 = y0, x0
-		x1, y1 = y1, x1
+	if y0 < y1 {
+		sy = 1
 	}
+	err := dx + dy
 
-	if x0 > x1 {
-		x0, x1 = x1, x0
-		y0, y1 = y1, y0
-	}
+	for {
+		blendPixel(pixels, x0, y0, color)
 
-	if dx != 0 {
-		m = float64(y1-y0) / float64(x1-x0)
-	}
-	n = y0 - int(m*float64(x0))
+		if x0 == x1 && y0 == y1 {
+			break
+		}
 
-	for x := x0; x < x1; x++ {
-		var y int
-		if steep {
-			y = int(m*float64(x) + float64(n))
-
-			if y >= 0 && x < pixelsWidth && x >= 0 && y < pixelsHeight {
-				blendPixel(pixels, x, y, color)
+		e2 := 2 * err
+		if e2 >= dy {
+			if x0 == x1 {
+				break
 			}
-		} else {
-			y = int(m*float64(x) + float64(n))
-
-			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
-				blendPixel(pixels, x, y, color)
+			err += dy
+			x0 += sx
+		}
+		if e2 <= dx {
+			if y0 == y1 {
+				break
 			}
+			err += dx
+			y0 += sy
 		}
 	}
 }
@@ -224,6 +261,13 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 		}
 		drawLine(y, xa, xb)
 	}
+}
+
+// DrawTriangle draws the outline of a triangle.
+func DrawTriangle(pixels [][]uint32, width, height, x0, y0, x1, y1, x2, y2 int, color uint32) {
+	Line(pixels, width, height, x0, y0, x1, y1, color)
+	Line(pixels, width, height, x1, y1, x2, y2, color)
+	Line(pixels, width, height, x2, y2, x0, y0, color)
 }
 
 // BlendColors blends two given colors
