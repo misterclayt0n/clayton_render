@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 )
 
@@ -15,6 +16,19 @@ func abs(n int) int {
 	}
 
 	return n
+}
+
+func degreesToRadians(degrees float64) float64 {
+	return degrees * (math.Pi / 180)
+}
+
+func BuildPixel(height, width int) [][]uint32 {
+	pixels := make([][]uint32, height)
+	for i := range pixels {
+		pixels[i] = make([]uint32, width)
+	}
+
+	return pixels
 }
 
 // Fill fills the entire given canvas
@@ -126,8 +140,8 @@ func SaveToPng(pixels [][]uint32, width, height int, filePath string) error {
 func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int, color uint32) {
 	x1 := cx - r
 	x2 := cx + r
-	y1 := cx - r
-	y2 := cx + r
+	y1 := cy - r
+	y2 := cy + r
 
 	for y := y1; y <= y2; y++ {
 		if y >= 0 && pixelsHeight > y {
@@ -298,6 +312,45 @@ func blendPixel(pixels [][]uint32, x, y int, fgColor uint32) {
 	bgColor := pixels[y][x]
 	blendedColor := BlendColors(bgColor, fgColor)
 	pixels[y][x] = blendedColor
+}
+
+// PixelsToBytes converts a bidimensional uint32 slice to a slice of bytes.
+func PixelsToBytes(pixels [][]uint32) []byte {
+	height := len(pixels)
+	if height == 0 {
+		return nil
+	}
+	width := len(pixels[0])
+	bytes := make([]byte, width*height*4)
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			pixel := pixels[y][x]
+			i := (y*width + x) * 4
+			bytes[i] = byte(pixel >> 24)
+			bytes[i+1] = byte(pixel>>16) & 0xFF
+			bytes[i+2] = byte(pixel>>8) & 0xFF
+			bytes[i+3] = byte(pixel) & 0xFF
+		}
+	}
+
+	return bytes
+}
+
+func RotatePoint(cx, cy, x, y, angle float64) (float64, float64) {
+	rad := degreesToRadians(angle)
+	cos := math.Cos(rad)
+	sin := math.Sin(rad)
+
+	x -= cx
+	y -= cy
+
+	newX := x*cos - y*sin
+	newY := x*sin + y*cos
+
+	newX += cx
+	newY += cy
+	return newX, newY
 }
 
 // TODO: DrawCircle
