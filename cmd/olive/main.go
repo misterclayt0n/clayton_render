@@ -12,4 +12,11 @@ func main() {
 	// example.Alpha()
 	// example.DrawCircle()
 	example.OliveSDL()
+	example.CanvaPNG()
+	example.CangaPPM()
+	example.CanvaRect()
+	example.Chessboard()
+	example.DrawCircle()
+	example.Triangle()
+	example.Circle()
 }

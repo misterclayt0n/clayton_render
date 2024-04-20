@@ -35,11 +35,17 @@ func OliveSDL() {
 
 	texture.SetBlendMode(sdl.BLENDMODE_BLEND)
 
+	canvas := olivego.NewCanvas(int(sdlWidth), int(sdlHeight))
+
 	angle := 0.0
 	cx, cy := float64(sdlWidth)/2, float64(sdlHeight)/2
 	circleX, circleY := cx, cy
 	circleVelX, circleVelY := 5.0, 5.0
 	radius := 100
+
+	x1, y1 := float64(sdlWidth)/2, float64(sdlHeight)/4
+	x2, y2 := float64(sdlWidth)/4, float64(3*sdlHeight)/4
+	x3, y3 := float64(3*sdlWidth)/4, float64(3*sdlHeight)/4
 
 	running := true
 	for running {
@@ -50,20 +56,14 @@ func OliveSDL() {
 			}
 		}
 
-		pixels := olivego.BuildPixel(int(sdlHeight), int(sdlWidth))
-
-		x1, y1 := float64(sdlWidth)/2, float64(sdlHeight)/4
-		x2, y2 := float64(sdlWidth)/4, float64(3*sdlHeight)/4
-		x3, y3 := float64(3*sdlWidth)/4, float64(3*sdlHeight)/4
+		canvas.Fill(0x202020FF)
+		canvas.FillCircle(int(circleX), int(circleY), radius, 0x00FF0055)
 
 		newX1, newY1 := olivego.RotatePoint(cx, cy, x1, y1, angle)
 		newX2, newY2 := olivego.RotatePoint(cx, cy, x2, y2, angle)
 		newX3, newY3 := olivego.RotatePoint(cx, cy, x3, y3, angle)
 
-		olivego.Fill(pixels, int(sdlWidth), int(sdlHeight), 0x202020FF)
-
-		olivego.FillTriangle(pixels, int(sdlWidth), int(sdlHeight),
-			int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF0000FF)
+		canvas.FillTriangle(int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF000055)
 
 		circleX += circleVelX
 		circleY += circleVelY
@@ -76,18 +76,12 @@ func OliveSDL() {
 			circleVelY = -circleVelY
 		}
 
-		olivego.FillCircle(pixels, width, height, int(circleX), int(circleY), radius, 0x00FF0055)
-		// olivego.FillRect(pixels, int(sdlWidth), int(sdlHeight), int(sdlWidth)/2, int(sdlHeight)/2, int(sdlWidth)/2, int(sdlHeight)/2, 0x0000FF55)
-		// olivego.DrawCircle(pixels, width, height, int(sdlWidth)/2, int(sdlHeight)/2, 100, 0x00FF00FF)
-
 		angle += 5.0
 
-		bytePixels := olivego.PixelsToBytes(pixels)
-
+		bytePixels := canvas.PixelsToBytes()
 		if len(bytePixels) == 0 {
 			bytePixels = make([]byte, sdlWidth*sdlHeight*4)
 		}
-
 		texture.Update(nil, unsafe.Pointer(&bytePixels[0]), int(sdlWidth)*4)
 
 		renderer.Clear()

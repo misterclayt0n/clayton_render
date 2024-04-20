@@ -10,160 +10,136 @@ import (
 	"os"
 )
 
-func abs(n int) int {
-	if n < 0 {
-		return -n
+// Canvas is the primary structure of olive.go. Use it to begin the rendering.
+type Canvas struct {
+	Pixels []uint32
+	Height int
+	Width  int
+	Stride int
+}
+
+// NormalizedRect contains the normalized values of a rectangle
+type normalizedRect struct {
+	x1, y1, x2, y2 int
+}
+
+func (c *Canvas) NormalizeRect(x, y, w, h int) (normalizedRect, bool) {
+	// check if x is out of bounds
+	if x < 0 {
+		w += x
+		x = 0
 	}
 
-	return n
-}
-
-func degreesToRadians(degrees float64) float64 {
-	return degrees * (math.Pi / 180)
-}
-
-func BuildPixel(height, width int) [][]uint32 {
-	pixels := make([][]uint32, height)
-	for i := range pixels {
-		pixels[i] = make([]uint32, width)
+	if x+w > c.Width {
+		w = c.Width - x
 	}
 
-	return pixels
+	// check if y is out of bounds
+	if y < 0 {
+		h += y
+		y = 0
+	}
+
+	if y+h > c.Height {
+		h = c.Height - y
+	}
+
+	if w <= 0 || h <= 0 {
+		return normalizedRect{}, false
+	}
+
+	return normalizedRect{
+		x1: x,
+		y1: y,
+		x2: x + w,
+		y2: y + h,
+	}, true
 }
 
-// Fill fills the entire given canvas
-func Fill(pixels [][]uint32, width, height int, color uint32) {
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			blendPixel(pixels, x, y, color)
+// NewCanvas builds the canvas with given width and height.
+func NewCanvas(width, height int) *Canvas {
+	pixels := make([]uint32, width*height)
+	return &Canvas{
+		Pixels: pixels,
+		Width:  width,
+		Height: height,
+		Stride: width,
+	}
+}
+
+// SetPixel set a given pixel to some color.
+func (c *Canvas) SetPixel(x, y int, color uint32) {
+	if x < 0 || x >= c.Width || y < 0 || y >= c.Height {
+		return // out of bounds
+	}
+
+	index := y*c.Stride + x
+	bgColor := c.Pixels[index]
+	blendedColor := BlendColors(bgColor, color)
+	c.Pixels[index] = blendedColor
+}
+
+// Fill fills the entire canvas with a desired color
+func (c *Canvas) Fill(color uint32) {
+	for y := 0; y < c.Height; y++ {
+		for x := 0; x < c.Width; x++ {
+			c.SetPixel(x, y, color)
 		}
 	}
 }
 
 // FillRect renders a rectangle
-func FillRect(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, w, h int, color uint32) {
-	for dy := 0; dy < h; dy++ {
-		y := y0 + dy
-		if y >= 0 && y < pixelsHeight {
-			for dx := 0; dx < w; dx++ {
-				x := x0 + dx
-				if x >= 0 && x < pixelsWidth {
-					blendPixel(pixels, x, y, color)
-				}
-			}
+func (c *Canvas) FillRect(x0, y0, w, h int, color uint32) {
+	nr, visible := c.NormalizeRect(x0, y0, w, h)
+
+	if !visible {
+		return // out of bounds
+	}
+
+	for dy := nr.y1; dy <= nr.y2; dy++ {
+		for dx := nr.x1; dx <= nr.x2; dx++ {
+			c.SetPixel(dx, dy, color)
 		}
 	}
 }
 
 // DrawRect draws the outline of a rectangle.
-func DrawRect(pixels [][]uint32, width, height, x0, y0, w, h int, color uint32) {
-	// Top and bottom
+func (c *Canvas) DrawRect(x0, y0, w, h int, color uint32) {
+	// top and bottom
 	for x := x0; x < x0+w; x++ {
-		blendPixel(pixels, x, y0, color)
-		blendPixel(pixels, x, y0+h-1, color)
+		c.SetPixel(x, y0, color)
+		c.SetPixel(x, y0+h-1, color)
 	}
-	// Left and right
+
 	for y := y0; y < y0+h; y++ {
-		blendPixel(pixels, x0, y, color)
-		blendPixel(pixels, x0+w-1, y, color)
+		c.SetPixel(x0, y, color)
+		c.SetPixel(x0+w-1, y, color)
 	}
 }
 
-// SaveToPpm saves the pixels into the ppm format, generating a ppm file
-func SaveToPpm(pixels [][]uint32, width, height int, filePath string) error {
-	if filePath == "" {
-		return errors.New("file path must be provided")
-	}
+func blendPixel(pixels [][]uint32, x, y int, color uint32) {
 
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	_, err = fmt.Fprintf(file, "P6\n%d %d\n255\n", width, height)
-	if err != nil {
-		return err
-	}
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			pixel := pixels[y][x]
-			r := uint8(pixel >> 24) // red in RGBA
-			g := uint8(pixel >> 16) // green in RGBA
-			b := uint8(pixel >> 8)  // green in RGBA
-			// ignore alpha channel
-			_, err := file.Write([]byte{r, g, b})
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
-// SaveToPng saves the pixels into the png format, generating a png file
-func SaveToPng(pixels [][]uint32, width, height int, filePath string) error {
-	if filePath == "" {
-		return errors.New("file path must be provided")
-	}
-
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			pixel := pixels[y][x]
-			r := uint8(pixel >> 24)
-			g := uint8(pixel >> 16)
-			b := uint8(pixel >> 8)
-			a := uint8(pixel)
-			img.SetNRGBA(x, y, color.NRGBA{R: r, G: g, B: b, A: a})
-		}
-	}
-
-	file, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	err = png.Encode(file, img)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// FillCircle renders a circle with given coordinates and radius
-func FillCircle(pixels [][]uint32, pixelsWidth, pixelsHeight int, cx, cy, r int, color uint32) {
-	x1 := cx - r
-	x2 := cx + r
-	y1 := cy - r
-	y2 := cy + r
-
-	for y := y1; y <= y2; y++ {
-		if y >= 0 && pixelsHeight > y {
-			for x := x1; x <= x2; x++ {
-				if x >= 0 && pixelsWidth > x {
-					dx := x - cx
-					dy := y - cy
-					if dx*dx+dy*dy <= r*r {
-						blendPixel(pixels, x, y, color)
-					}
-				}
+// FillCircle renders a circle with the given coordinates and radius.
+func (c *Canvas) FillCircle(cx, cy, r int, color uint32) {
+	for y := cy - r; y <= cy+r; y++ {
+		for x := cx - r; x <= cx+r; x++ {
+			dx := x - cx
+			dy := y - cy
+			if dx*dx+dy*dy <= r*r {
+				c.SetPixel(x, y, color)
 			}
 		}
 	}
 }
 
 // DrawCircle draws the outline of a circle.
-func DrawCircle(pixels [][]uint32, width, height, cx, cy, r int, color uint32) {
+func (c *Canvas) DrawCircle(cx, cy, r int, color uint32) {
 	x, y := r, 0
 	p := 1 - r
 
-	setCirclePixels(pixels, cx, cy, x, y, color)
+	c.setCirclePixels(cx, cy, x, y, color)
 
 	for x > y {
 		y++
@@ -173,63 +149,12 @@ func DrawCircle(pixels [][]uint32, width, height, cx, cy, r int, color uint32) {
 			x--
 			p += 2*(y-x) + 1
 		}
-		setCirclePixels(pixels, cx, cy, x, y, color)
-	}
-}
-
-// setCirclePixels sets the pixels for the 8 octants of the circle.
-func setCirclePixels(pixels [][]uint32, cx, cy, x, y int, color uint32) {
-	blendPixel(pixels, cx+x, cy+y, color)
-	blendPixel(pixels, cx-x, cy+y, color)
-	blendPixel(pixels, cx+x, cy-y, color)
-	blendPixel(pixels, cx-x, cy-y, color)
-	blendPixel(pixels, cx+y, cy+x, color)
-	blendPixel(pixels, cx-y, cy+x, color)
-	blendPixel(pixels, cx+y, cy-x, color)
-	blendPixel(pixels, cx-y, cy-x, color)
-}
-
-// Line draws a straight line between 2 points: (x0, y0), (x1, y1)
-func Line(pixels [][]uint32, pixelsWidth, pixelsHeight int, x0, y0, x1, y1 int, color uint32) {
-	dx := abs(x1 - x0)
-	dy := -abs(y1 - y0)
-	sx := -1
-	sy := -1
-	if x0 < x1 {
-		sx = 1
-	}
-	if y0 < y1 {
-		sy = 1
-	}
-	err := dx + dy
-
-	for {
-		blendPixel(pixels, x0, y0, color)
-
-		if x0 == x1 && y0 == y1 {
-			break
-		}
-
-		e2 := 2 * err
-		if e2 >= dy {
-			if x0 == x1 {
-				break
-			}
-			err += dy
-			x0 += sx
-		}
-		if e2 <= dx {
-			if y0 == y1 {
-				break
-			}
-			err += dx
-			y0 += sy
-		}
+		c.setCirclePixels(cx, cy, x, y, color)
 	}
 }
 
 // FillTriangle renders a triangle based on given 3 coordinates
-func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, x2, y2 int, color uint32) {
+func (c *Canvas) FillTriangle(x0, y0, x1, y1, x2, y2 int, color uint32) {
 	if y1 < y0 {
 		x0, x1 = x1, x0
 		y0, y1 = y1, y0
@@ -252,8 +177,8 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 
 	drawLine := func(y, x1, x2 int) {
 		for x := x1; x <= x2; x++ {
-			if x >= 0 && x < pixelsWidth && y >= 0 && y < pixelsHeight {
-				blendPixel(pixels, x, y, color)
+			if x >= 0 && x < c.Width && y >= 0 && y < c.Height {
+				c.SetPixel(x, y, color)
 			}
 		}
 	}
@@ -278,10 +203,47 @@ func FillTriangle(pixels [][]uint32, pixelsWidth, pixelsHeight, x0, y0, x1, y1, 
 }
 
 // DrawTriangle draws the outline of a triangle.
-func DrawTriangle(pixels [][]uint32, width, height, x0, y0, x1, y1, x2, y2 int, color uint32) {
-	Line(pixels, width, height, x0, y0, x1, y1, color)
-	Line(pixels, width, height, x1, y1, x2, y2, color)
-	Line(pixels, width, height, x2, y2, x0, y0, color)
+func (c *Canvas) DrawTriangle(x0, y0, x1, y1, x2, y2 int, color uint32) {
+	c.Line(x0, y0, x1, y1, color)
+	c.Line(x1, y1, x2, y2, color)
+	c.Line(x2, y2, x0, y0, color)
+}
+
+// Line draws a straight line between 2 points: (x0, y0), (x1, y1)
+func (c *Canvas) Line(x0, y0, x1, y1 int, color uint32) {
+	dx := abs(x1 - x0)
+	sx := -1
+	if x0 < x1 {
+		sx = 1
+	}
+	dy := -abs(y1 - y0)
+	sy := -1
+	if y0 < y1 {
+		sy = 1
+	}
+	err := dx + dy
+
+	for {
+		c.SetPixel(x0, y0, color)
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 >= dy {
+			if x0 == x1 {
+				break
+			}
+			err += dy
+			x0 += sx
+		}
+		if e2 <= dx {
+			if y0 == y1 {
+				break
+			}
+			err += dx
+			y0 += sy
+		}
+	}
 }
 
 // BlendColors blends two given colors
@@ -304,34 +266,19 @@ func BlendColors(bgColor, fgColor uint32) uint32 {
 	return (uint32(r) << 24) | (uint32(g) << 16) | (uint32(b) << 8) | 0xFF
 }
 
-// blendPixel blends the foreground color with the background color directly on the canvas.
-func blendPixel(pixels [][]uint32, x, y int, fgColor uint32) {
-	if x < 0 || x >= len(pixels[0]) || y < 0 || y >= len(pixels) {
-		return // out of bounds
-	}
-	bgColor := pixels[y][x]
-	blendedColor := BlendColors(bgColor, fgColor)
-	pixels[y][x] = blendedColor
-}
-
-// PixelsToBytes converts a bidimensional uint32 slice to a slice of bytes.
-func PixelsToBytes(pixels [][]uint32) []byte {
-	height := len(pixels)
-	if height == 0 {
+// PixelsToBytes converts a Canvas's pixel data to a slice of bytes.
+func (c *Canvas) PixelsToBytes() []byte {
+	if len(c.Pixels) == 0 {
 		return nil
 	}
-	width := len(pixels[0])
-	bytes := make([]byte, width*height*4)
+	bytes := make([]byte, c.Width*c.Height*4)
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			pixel := pixels[y][x]
-			i := (y*width + x) * 4
-			bytes[i] = byte(pixel >> 24)
-			bytes[i+1] = byte(pixel>>16) & 0xFF
-			bytes[i+2] = byte(pixel>>8) & 0xFF
-			bytes[i+3] = byte(pixel) & 0xFF
-		}
+	for i, pixel := range c.Pixels {
+		j := i * 4
+		bytes[j] = byte(pixel >> 24)   // Red
+		bytes[j+1] = byte(pixel >> 16) // Green
+		bytes[j+2] = byte(pixel >> 8)  // Blue
+		bytes[j+3] = byte(pixel)       // Alpha
 	}
 
 	return bytes
@@ -353,5 +300,112 @@ func RotatePoint(cx, cy, x, y, angle float64) (float64, float64) {
 	return newX, newY
 }
 
+// SaveToPng saves the pixels into the png format, generating a png file
+func (c *Canvas) SaveToPng(filePath string) error {
+	img := image.NewNRGBA(image.Rect(0, 0, c.Width, c.Height))
+
+	for y := 0; y < c.Height; y++ {
+		for x := 0; x < c.Width; x++ {
+			index := y*c.Stride + x
+			pixel := c.Pixels[index]
+			r := uint8(pixel >> 24)
+			g := uint8(pixel >> 16)
+			b := uint8(pixel >> 8)
+			a := uint8(pixel)
+			img.SetNRGBA(x, y, color.NRGBA{R: r, G: g, B: b, A: a})
+		}
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = png.Encode(file, img)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SaveToPpm saves the pixels into the ppm format, generating a ppm file
+func (c *Canvas) SaveToPpm(filePath string) error {
+	if filePath == "" {
+		return errors.New("file path must be provided")
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = fmt.Fprintf(file, "P6\n%d %d\n255\n", c.Width, c.Height)
+	if err != nil {
+		return err
+	}
+
+	for y := 0; y < c.Height; y++ {
+		for x := 0; x < c.Width; x++ {
+			index := y*c.Stride + x
+			pixel := c.Pixels[index]
+			r := uint8(pixel >> 24) // red in RGBA
+			g := uint8(pixel >> 16) // green in RGBA
+			b := uint8(pixel >> 8)  // green in RGBA
+			// ignore alpha channel
+			_, err := file.Write([]byte{r, g, b})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 // TODO: DrawCircle
 // TODO: {Draw&&Fill}Elipse
+
+// helper functions
+
+func abs(n int) int {
+	if n < 0 {
+		return -n
+	}
+
+	return n
+}
+
+func degreesToRadians(degrees float64) float64 {
+	return degrees * (math.Pi / 180)
+}
+
+// setCirclePixels sets the pixels for the 8 octants of the circle.
+func (c *Canvas) setCirclePixels(cx, cy, x, y int, color uint32) {
+	if cx+x < c.Width && cy+y < c.Height {
+		c.SetPixel(cx+x, cy+y, color)
+	}
+	if cx-x >= 0 && cy+y < c.Height {
+		c.SetPixel(cx-x, cy+y, color)
+	}
+	if cx+x < c.Width && cy-y >= 0 {
+		c.SetPixel(cx+x, cy-y, color)
+	}
+	if cx-x >= 0 && cy-y >= 0 {
+		c.SetPixel(cx-x, cy-y, color)
+	}
+	if cx+y < c.Width && cy+x < c.Height {
+		c.SetPixel(cx+y, cy+x, color)
+	}
+	if cx-y >= 0 && cy+x < c.Height {
+		c.SetPixel(cx-y, cy+x, color)
+	}
+	if cx+y < c.Width && cy-x >= 0 {
+		c.SetPixel(cx+y, cy-x, color)
+	}
+	if cx-y >= 0 && cy-x >= 0 {
+		c.SetPixel(cx-y, cy-x, color)
+	}
+}

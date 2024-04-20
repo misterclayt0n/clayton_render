@@ -15,10 +15,68 @@ var (
 // rectHeight := 200
 // rectWidth := 200
 
-func Chessboard() {
-	pixels := olivego.BuildPixel(height, width)
+func Circle() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0x55555555)
 
-	olivego.Fill(pixels, width, height, backgroundColor)
+	canvas.FillCircle(width/2, height/2, 100, 0xFF0000FF)
+	if err := canvas.SaveToPpm("circle.ppm"); err != nil {
+		panic("shit happens")
+	}
+}
+
+// func Line() {
+// 	pixels := olivego.BuildPixel(height, width)
+// 	olivego.Fill(pixels, width, height, backgroundColor)
+// 	olivego.Line(pixels, width, height, 0, 0, width, height, 0xFF0000FF)
+// 	olivego.Line(pixels, width, height, width, 0, 0, height, 0xFF0000FF)
+// 	err := olivego.SaveToPpm(pixels, width, height, "line.ppm")
+// 	if err != nil {
+// 		panic("Failed to save to ppm")
+// 	}
+// }
+
+// func Alpha() {
+// 	pixels := olivego.BuildPixel(height, width)
+// 	olivego.Fill(pixels, width, height, backgroundColor)
+
+// 	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
+// 	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF0055)
+
+// 	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
+// 	if err != nil {
+// 		panic("Failed to save to ppm")
+// 	}
+// }
+
+func CanvaPNG() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0xFF000055)
+	if err := canvas.SaveToPng("canva.png"); err != nil {
+		panic("shit happens")
+	}
+}
+
+func CangaPPM() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0xFF000055)
+	if err := canvas.SaveToPpm("canva.ppm"); err != nil {
+		panic("shit happens")
+	}
+}
+
+func CanvaRect() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0x55555555)
+	canvas.FillRect(width/2, height/2, width*3/4, height*3/4, 0xFF0000FF)
+	if err := canvas.SaveToPpm("canvas_rect.ppm"); err != nil {
+		panic("shit happens")
+	}
+}
+
+func Chessboard() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0x55555555)
 
 	for y := 0; y < cols; y++ {
 		for x := 0; x < rows; x++ {
@@ -28,76 +86,37 @@ func Chessboard() {
 			} else {
 				color = 0x000000FF
 			}
-			olivego.FillRect(pixels, width, height, x*cellWidth, y*cellHeight, cellWidth, cellHeight, color)
+			canvas.FillRect(x*cellWidth, y*cellHeight, cellWidth, cellHeight, color)
 		}
 	}
-
-	err := olivego.SaveToPpm(pixels, width, height, "chessboard.ppm")
-	if err != nil {
-		panic("Failed to save to ppm")
-	}
-}
-
-func Circle() {
-	pixels := olivego.BuildPixel(height, width)
-
-	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.FillCircle(pixels, width, height, width/2, height/2, 100, 0xFF00FF00)
-	err := olivego.SaveToPpm(pixels, width, height, "circle.ppm")
-	if err != nil {
-		panic("Failed to save to ppm")
-	}
-}
-
-func Line() {
-	pixels := olivego.BuildPixel(height, width)
-	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.Line(pixels, width, height, 0, 0, width, height, 0xFF0000FF)
-	olivego.Line(pixels, width, height, width, 0, 0, height, 0xFF0000FF)
-	err := olivego.SaveToPpm(pixels, width, height, "line.ppm")
-	if err != nil {
-		panic("Failed to save to ppm")
-	}
-}
-
-func Triangle() {
-	pixels := olivego.BuildPixel(height, width)
-	x0, y0 := 200, 200
-	x1, y1 := 200, 400
-	x2, y2 := 400, 300
-	olivego.Fill(pixels, width, height, backgroundColor)
-	olivego.FillTriangle(pixels, width, height, x0, y0, x1, y1, x2, y2, 0xFF0000FF)
-	err := olivego.SaveToPpm(pixels, width, height, "triangle.ppm")
-	if err != nil {
-		panic("Failed to save to ppm")
-	}
-}
-
-func Alpha() {
-	pixels := olivego.BuildPixel(height, width)
-	olivego.Fill(pixels, width, height, backgroundColor)
-
-	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
-	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF0055)
-
-	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
-	if err != nil {
-		panic("Failed to save to ppm")
+	if err := canvas.SaveToPpm("chessboard.ppm"); err != nil {
+		panic("shit happens")
 	}
 }
 
 func DrawCircle() {
-	pixels := olivego.BuildPixel(height, width)
-	olivego.Fill(pixels, width, height, backgroundColor)
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0x55555555)
 	x0, y0 := 200, 200
 	x1, y1 := 200, 400
 	x2, y2 := 400, 300
 
-	olivego.DrawCircle(pixels, width, height, width/2, height/2, 100, 0xFF0000FF)
-	olivego.DrawRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
-	olivego.DrawTriangle(pixels, width, height, x0, y0, x1, y1, x2, y2, 0xFF0000FF)
-	err := olivego.SaveToPng(pixels, width, height, "drawing.png")
-	if err != nil {
-		panic("Failed to save to ppm")
+	canvas.DrawRect(x0, y0, width*3/4, height*3/4, 0xFF0000FF)
+	canvas.DrawCircle(width/2, height/2, 100, 0xFF0000FF)
+	canvas.DrawTriangle(x0, y0, x1, y1, x2, y2, 0xFF0000FF)
+	if err := canvas.SaveToPpm("drawing.ppm"); err != nil {
+		panic("shit happens")
+	}
+}
+
+func Triangle() {
+	canvas := olivego.NewCanvas(width, height)
+	canvas.Fill(0x55555555)
+	x0, y0 := 200, 200
+	x1, y1 := 200, 400
+	x2, y2 := 400, 300
+	canvas.FillTriangle(x0, y0, x1, y1, x2, y2, 0xFF0000FF)
+	if err := canvas.SaveToPpm("triangle.ppm"); err != nil {
+		panic("shit happens")
 	}
 }
