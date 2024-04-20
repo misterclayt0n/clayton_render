@@ -19,7 +19,7 @@ func Circle() {
 	canvas := olivego.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 
-	canvas.FillCircle(width/2, height/2, 100, 0xFF0000FF)
+	canvas.FillCircle(width/2, height/2, 300, 0xFF0000FF)
 	if err := canvas.SaveToPpm("circle.ppm"); err != nil {
 		panic("shit happens")
 	}

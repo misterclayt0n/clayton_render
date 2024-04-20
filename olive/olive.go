@@ -123,12 +123,23 @@ func blendPixel(pixels [][]uint32, x, y int, color uint32) {
 
 // FillCircle renders a circle with the given coordinates and radius.
 func (c *Canvas) FillCircle(cx, cy, r int, color uint32) {
-	for y := cy - r; y <= cy+r; y++ {
-		for x := cx - r; x <= cx+r; x++ {
+	for y := cy - r - 1; y <= cy+r+1; y++ {
+		for x := cx - r - 1; x <= cx+r+1; x++ {
 			dx := x - cx
 			dy := y - cy
-			if dx*dx+dy*dy <= r*r {
+			distanceSquared := dx*dx + dy*dy
+
+			distanceToEdge := math.Sqrt(float64(distanceSquared)) - float64(r)
+
+			if distanceToEdge < 0 {
 				c.SetPixel(x, y, color)
+			} else if distanceToEdge < 1 {
+				opacity := 1.0 - distanceToEdge
+
+				newAlpha := uint8(float64(color&0xFF) * opacity)
+				newColor := (color & 0xFFFFFF00) | uint32(newAlpha)
+
+				c.SetPixel(x, y, newColor)
 			}
 		}
 	}
