@@ -1,4 +1,4 @@
-package example
+package main
 
 import olivego "github.com/misterclayt0n/olive.go/olive"
 
@@ -119,4 +119,8 @@ func Triangle() {
 	if err := canvas.SaveToPpm("triangle.ppm"); err != nil {
 		panic("shit happens")
 	}
+}
+
+func main() {
+	Triangle()
 }

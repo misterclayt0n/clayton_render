@@ -1,4 +1,4 @@
-package example
+package main
 
 import (
 	"unsafe"
@@ -9,7 +9,7 @@ import (
 
 const sdlWidth, sdlHeight int32 = 800, 600
 
-func OliveSDL() {
+func main() {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -57,13 +57,13 @@ func OliveSDL() {
 		}
 
 		canvas.Fill(0x202020FF)
-		canvas.FillCircle(int(circleX), int(circleY), radius, 0x00FF0055)
+		canvas.DrawCircle(int(circleX), int(circleY), radius, 0x00FF0055)
 
 		newX1, newY1 := olivego.RotatePoint(cx, cy, x1, y1, angle)
 		newX2, newY2 := olivego.RotatePoint(cx, cy, x2, y2, angle)
 		newX3, newY3 := olivego.RotatePoint(cx, cy, x3, y3, angle)
 
-		canvas.FillTriangle(int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF000055)
+		canvas.DrawTriangle(int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF000055)
 
 		circleX += circleVelX
 		circleY += circleVelY

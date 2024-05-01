@@ -117,10 +117,6 @@ func (c *Canvas) DrawRect(x0, y0, w, h int, color uint32) {
 	}
 }
 
-func blendPixel(pixels [][]uint32, x, y int, color uint32) {
-
-}
-
 // FillCircle renders a circle with the given coordinates and radius.
 func (c *Canvas) FillCircle(cx, cy, r int, color uint32) {
 	for y := cy - r - 1; y <= cy+r+1; y++ {
@@ -164,6 +160,7 @@ func (c *Canvas) DrawCircle(cx, cy, r int, color uint32) {
 	}
 }
 
+// TODO: anti aliasing for triangle
 // FillTriangle renders a triangle based on given 3 coordinates
 func (c *Canvas) FillTriangle(x0, y0, x1, y1, x2, y2 int, color uint32) {
 	if y1 < y0 {
@@ -220,6 +217,7 @@ func (c *Canvas) DrawTriangle(x0, y0, x1, y1, x2, y2 int, color uint32) {
 	c.Line(x2, y2, x0, y0, color)
 }
 
+// TODO: anti aliasing for Line
 // Line draws a straight line between 2 points: (x0, y0), (x1, y1)
 func (c *Canvas) Line(x0, y0, x1, y1 int, color uint32) {
 	dx := abs(x1 - x0)
@@ -376,9 +374,6 @@ func (c *Canvas) SaveToPpm(filePath string) error {
 	return nil
 }
 
-// TODO: DrawCircle
-// TODO: {Draw&&Fill}Elipse
-
 // helper functions
 
 func abs(n int) int {
@@ -420,3 +415,6 @@ func (c *Canvas) setCirclePixels(cx, cy, x, y int, color uint32) {
 		c.SetPixel(cx-y, cy-x, color)
 	}
 }
+
+// TODO: DrawCircle
+// TODO: {Draw&&Fill}Elipse
