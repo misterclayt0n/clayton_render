@@ -1,4 +1,4 @@
-module github.com/misterclayt0n/olive.go
+module github.com/misterclayt0n/clayton_render
 
 go 1.22.1
 

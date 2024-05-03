@@ -1,4 +1,4 @@
-package olivego
+package clayton_render
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-// Canvas is the primary structure of olive.go. Use it to begin the rendering.
+// Canvas is the primary structure of clayton_render. Use it to begin the rendering.
 type Canvas struct {
 	Pixels []uint32
 	Height int

@@ -3,7 +3,7 @@ package main
 import (
 	"unsafe"
 
-	"github.com/misterclayt0n/olive.go/olive"
+	"github.com/misterclayt0n/clayton_render/clayton_render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -20,8 +20,8 @@ func main() {
 	render()
 }
 
-func render3d() *olivego.Canvas {
-	canvas := olivego.NewCanvas(int(width), int(height))
+func render3d() *clayton_render.Canvas {
+	canvas := clayton_render.NewCanvas(int(width), int(height))
 	canvas.Fill(0x202020FF)
 
 	fov := 1000.0
@@ -60,7 +60,7 @@ func render() {
 	}
 	defer sdl.Quit()
 
-	window, err := sdl.CreateWindow("OliveGo 3D", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_SHOWN)
+	window, err := sdl.CreateWindow("clayton_render 3D", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, width, height, sdl.WINDOW_SHOWN)
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +80,7 @@ func render() {
 
 	texture.SetBlendMode(sdl.BLENDMODE_BLEND)
 
-	// canvas := olivego.NewCanvas(int(width), int(height))
+	// canvas := clayton_render.NewCanvas(int(width), int(height))
 
 	running := true
 	for running {

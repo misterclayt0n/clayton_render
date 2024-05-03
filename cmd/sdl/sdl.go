@@ -3,7 +3,7 @@ package main
 import (
 	"unsafe"
 
-	"github.com/misterclayt0n/olive.go/olive"
+	"github.com/misterclayt0n/clayton_render/clayton_render"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -35,7 +35,7 @@ func main() {
 
 	texture.SetBlendMode(sdl.BLENDMODE_BLEND)
 
-	canvas := olivego.NewCanvas(int(sdlWidth), int(sdlHeight))
+	canvas := clayton_render.NewCanvas(int(sdlWidth), int(sdlHeight))
 
 	angle := 0.0
 	cx, cy := float64(sdlWidth)/2, float64(sdlHeight)/2
@@ -57,13 +57,13 @@ func main() {
 		}
 
 		canvas.Fill(0x202020FF)
-		canvas.DrawCircle(int(circleX), int(circleY), radius, 0x00FF0055)
+		canvas.FillCircle(int(circleX), int(circleY), radius, 0x00FF0055)
 
-		newX1, newY1 := olivego.RotatePoint(cx, cy, x1, y1, angle)
-		newX2, newY2 := olivego.RotatePoint(cx, cy, x2, y2, angle)
-		newX3, newY3 := olivego.RotatePoint(cx, cy, x3, y3, angle)
+		newX1, newY1 := clayton_render.RotatePoint(cx, cy, x1, y1, angle)
+		newX2, newY2 := clayton_render.RotatePoint(cx, cy, x2, y2, angle)
+		newX3, newY3 := clayton_render.RotatePoint(cx, cy, x3, y3, angle)
 
-		canvas.DrawTriangle(int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF000055)
+		canvas.FillTriangle(int(newX1), int(newY1), int(newX2), int(newY2), int(newX3), int(newY3), 0xFF000055)
 
 		circleX += circleVelX
 		circleY += circleVelY

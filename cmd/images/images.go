@@ -1,6 +1,8 @@
 package main
 
-import olivego "github.com/misterclayt0n/olive.go/olive"
+import (
+	"github.com/misterclayt0n/clayton_render/clayton_render"
+)
 
 var (
 	height          int    = 800
@@ -16,7 +18,7 @@ var (
 // rectWidth := 200
 
 func Circle() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 
 	canvas.FillCircle(width/2, height/2, 300, 0xFF0000FF)
@@ -26,31 +28,31 @@ func Circle() {
 }
 
 // func Line() {
-// 	pixels := olivego.BuildPixel(height, width)
-// 	olivego.Fill(pixels, width, height, backgroundColor)
-// 	olivego.Line(pixels, width, height, 0, 0, width, height, 0xFF0000FF)
-// 	olivego.Line(pixels, width, height, width, 0, 0, height, 0xFF0000FF)
-// 	err := olivego.SaveToPpm(pixels, width, height, "line.ppm")
+// 	pixels := clayton_render.BuildPixel(height, width)
+// 	clayton_render.Fill(pixels, width, height, backgroundColor)
+// 	clayton_render.Line(pixels, width, height, 0, 0, width, height, 0xFF0000FF)
+// 	clayton_render.Line(pixels, width, height, width, 0, 0, height, 0xFF0000FF)
+// 	err := clayton_render.SaveToPpm(pixels, width, height, "line.ppm")
 // 	if err != nil {
 // 		panic("Failed to save to ppm")
 // 	}
 // }
 
 // func Alpha() {
-// 	pixels := olivego.BuildPixel(height, width)
-// 	olivego.Fill(pixels, width, height, backgroundColor)
+// 	pixels := clayton_render.BuildPixel(height, width)
+// 	clayton_render.Fill(pixels, width, height, backgroundColor)
 
-// 	olivego.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
-// 	olivego.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF0055)
+// 	clayton_render.FillRect(pixels, width, height, 0, 0, width*3/4, height*3/4, 0xFF0000FF)
+// 	clayton_render.FillRect(pixels, width, height, width/4, height/4, width*3/4, height*3/4, 0x00FF0055)
 
-// 	err := olivego.SaveToPpm(pixels, width, height, "alpha.ppm")
+// 	err := clayton_render.SaveToPpm(pixels, width, height, "alpha.ppm")
 // 	if err != nil {
 // 		panic("Failed to save to ppm")
 // 	}
 // }
 
 func CanvaPNG() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0xFF000055)
 	if err := canvas.SaveToPng("canva.png"); err != nil {
 		panic("shit happens")
@@ -58,7 +60,7 @@ func CanvaPNG() {
 }
 
 func CangaPPM() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0xFF000055)
 	if err := canvas.SaveToPpm("canva.ppm"); err != nil {
 		panic("shit happens")
@@ -66,7 +68,7 @@ func CangaPPM() {
 }
 
 func CanvaRect() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 	canvas.FillRect(width/2, height/2, width*3/4, height*3/4, 0xFF0000FF)
 	if err := canvas.SaveToPpm("canvas_rect.ppm"); err != nil {
@@ -75,7 +77,7 @@ func CanvaRect() {
 }
 
 func Chessboard() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 
 	for y := 0; y < cols; y++ {
@@ -95,7 +97,7 @@ func Chessboard() {
 }
 
 func DrawCircle() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 	x0, y0 := 200, 200
 	x1, y1 := 200, 400
@@ -110,7 +112,7 @@ func DrawCircle() {
 }
 
 func Triangle() {
-	canvas := olivego.NewCanvas(width, height)
+	canvas := clayton_render.NewCanvas(width, height)
 	canvas.Fill(0x55555555)
 	x0, y0 := 200, 200
 	x1, y1 := 200, 400
